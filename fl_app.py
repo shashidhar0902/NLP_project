@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template
-from tokenizer_file import process_prompt, detect_intent
+from nlp_intent import detect_intent
 
 app = Flask(__name__)
 
