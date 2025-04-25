@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template
-from tokenizer_file import process_prompt
+from tokenizer_file import process_prompt, detect_intent
 
 app = Flask(__name__)
 
@@ -7,10 +7,10 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         prompt = request.form['prompt']
-        tokens = process_prompt(prompt)
-        if "switch on the light" in tokens:
+        intent = detect_intent(prompt)
+        if intent == "on":
             image = "light_on.jpg"
-        elif "switch off the light" in tokens:
+        elif intent == "off":
             image = "light_off.jpg"
         else:
             image = "default.jpg"
