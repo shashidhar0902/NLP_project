@@ -8,10 +8,14 @@ def index():
     if request.method == 'POST':
         prompt = request.form['prompt']
         intent = detect_intent(prompt)
-        if intent == "on":
+        if intent == "on_light":
             image = "light_on.jpg"
-        elif intent == "off":
+        elif intent == "off_light":
             image = "light_off.jpg"
+        elif intent == "on_fan":
+            image = "fan_on.jpg"
+        elif intent == "off_fan":
+            image = "fan_off.jpg"
         else:
             image = "default.jpg"
         return render_template('index.html', image=image)
