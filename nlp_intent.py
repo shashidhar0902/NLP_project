@@ -1,11 +1,11 @@
-# Note: This implementation requires the sentence-transformers library.
-# Install it via: pip install sentence-transformers
-
-from sentence_transformers import SentenceTransformer
+import os
 import numpy as np
+import time
+from sentence_transformers import SentenceTransformer
 
 # Load pretrained model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+#model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-MiniLM-L12-v2')
 
 # Example intent sentences
 on_light_examples = [
@@ -52,19 +52,42 @@ on_fan_examples = [
     "start the fan"
 ]
 
-# Compute embeddings for example sentences
-on_light_embeddings = model.encode(on_light_examples)
-off_light_embeddings = model.encode(off_light_examples)
-on_fan_embeddings = model.encode(on_fan_examples)
-off_fan_embeddings = model.encode(off_fan_examples)
+# File paths to save embeddings
+embedding_dir = "embeddings"
+os.makedirs(embedding_dir, exist_ok=True)
+on_light_path = os.path.join(embedding_dir, "on_light.npy")
+off_light_path = os.path.join(embedding_dir, "off_light.npy")
+on_fan_path = os.path.join(embedding_dir, "on_fan.npy")
+off_fan_path = os.path.join(embedding_dir, "off_fan.npy")
+
+def save_embeddings():
+    np.save(on_light_path, model.encode(on_light_examples))
+    np.save(off_light_path, model.encode(off_light_examples))
+    np.save(on_fan_path, model.encode(on_fan_examples))
+    np.save(off_fan_path, model.encode(off_fan_examples))    
+
+# Save embeddings if not already saved
+if not (os.path.exists(on_light_path) and os.path.exists(off_light_path) and
+        os.path.exists(on_fan_path) and os.path.exists(off_fan_path)):
+    save_embeddings()
+
+# Load embeddings
+on_light_embeddings = np.load(on_light_path)
+off_light_embeddings = np.load(off_light_path)
+on_fan_embeddings = np.load(on_fan_path)
+off_fan_embeddings = np.load(off_fan_path)
 
 def detect_intent(prompt):
     """
     Detect intent to switch light or fan on or off based on semantic similarity.
     Returns one of 'on_light', 'off_light', 'on_fan', 'off_fan', or 'unknown'.
     """
+    # start_time = time.time()
     prompt_embedding = model.encode([prompt])[0]
-
+    # end_time = time.time()
+    # exec_time = end_time - start_time
+    # with open("execution_time.txt", "w") as f:
+    #     f.write(f"Execution time: {exec_time} seconds")
     def cosine_similarity(a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
@@ -81,6 +104,3 @@ def detect_intent(prompt):
         return best_intent
     else:
         return "unknown"
-
-# For testing
-#print(detect_intent("turn on the light"))

@@ -1,0 +1,6 @@
+flask
+sentence-transformers
+numpy
+onnxruntime
+transformers
+torch
